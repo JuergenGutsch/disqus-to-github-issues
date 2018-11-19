@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisqusToGithubIssues", "DisqusToGithubIssues\DisqusToGithubIssues.csproj", "{C11585A9-E1C0-4A37-8CDD-A643235D38A3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".shared", ".shared", "{E7D87B26-25C0-4A69-87AF-74FD812D0FA2}"
+	ProjectSection(SolutionItems) = preProject
+		dusqus-export.xml = dusqus-export.xml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C11585A9-E1C0-4A37-8CDD-A643235D38A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C11585A9-E1C0-4A37-8CDD-A643235D38A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C11585A9-E1C0-4A37-8CDD-A643235D38A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C11585A9-E1C0-4A37-8CDD-A643235D38A3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C0803E7D-D10E-4AFE-ABF0-46E4BC447F95}
+	EndGlobalSection
+EndGlobal
