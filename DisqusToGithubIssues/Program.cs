@@ -1,4 +1,4 @@
-﻿using Octokit;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,13 +12,21 @@ namespace DisqusToGithubIssues
 {
     internal class Program
     {
-        private const string repoName = "blog";
-        private const string repoOwner = "JuergenGutsch";
         private static readonly HttpClient client = new HttpClient();
 
         private static async Task Main(string[] args)
         {
+            if (args.Length != 4)
+            {
+                Console.WriteLine("You must supply 4 command-line arguments: <path to Disqus XML file>, <GitHub username>, <GitHub repo name>, <GitHub personal access token>");
+                return;
+            }
+
             var path = args[0];
+            string repoOwner = args[1];
+            string repoName = args[2];
+            string PAT = args[3];
+
             if (File.Exists(path))
             {
                 Console.WriteLine($"File '{path}' found.");
@@ -38,8 +46,12 @@ namespace DisqusToGithubIssues
 
                 PrepareThreads(threads, posts);
 
-                await PostIssuesToGitHub(threads);
+                await PostIssuesToGitHub(threads, repoOwner, repoName, PAT);
 
+            }
+            else
+            {
+                Console.WriteLine($"File '{path}' not found.");
             }
 
             Console.ReadKey();
@@ -169,10 +181,10 @@ private static async Task<IEnumerable<Thread>> FindThreads(XmlDocument doc, XmlN
             }
         }
 
-private static async Task PostIssuesToGitHub(IEnumerable<Thread> threads)
+private static async Task PostIssuesToGitHub(IEnumerable<Thread> threads, string repoOwner, string repoName, string PAT)
 {
     var client = new GitHubClient(new ProductHeaderValue("DisqusToGithubIssues"));
-    var basicAuth = new Credentials("secret personal token from github");
+    var basicAuth = new Credentials(PAT);
     client.Credentials = basicAuth;
 
     var issues = await client.Issue.GetAllForRepository(repoOwner, repoName);
