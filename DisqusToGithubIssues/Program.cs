@@ -116,8 +116,16 @@ namespace DisqusToGithubIssues
 
             try
             {
+                await Task.Delay(100);
                 var response = await client.GetAsync(url);
-                return response.StatusCode == HttpStatusCode.OK;
+
+                var valid = (response.StatusCode == HttpStatusCode.OK);
+                
+                if(!valid){
+                    Console.WriteLine($"url {url} not valid because http response status is {response.StatusCode}");
+                }
+                
+                return valid;
             }
             catch (Exception ex)
             {
