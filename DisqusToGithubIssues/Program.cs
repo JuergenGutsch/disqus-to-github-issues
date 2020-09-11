@@ -57,52 +57,52 @@ namespace DisqusToGithubIssues
             Console.ReadKey();
         }
 
-private static async Task<IEnumerable<Thread>> FindThreads(XmlDocument doc, XmlNamespaceManager nsmgr)
-{
-    var xthreads = doc.DocumentElement.SelectNodes("def:thread", nsmgr);
-
-    var threads = new List<Thread>();
-    var i = 0;
-    foreach (XmlNode xthread in xthreads)
-    {
-        i++;
-
-        long threadId = xthread.AttributeValue<long>(0);
-        var isDeleted = xthread["isDeleted"].NodeValue<bool>();
-        var isClosed = xthread["isClosed"].NodeValue<bool>();
-        var url = xthread["link"].NodeValue();
-        var isValid = await CheckThreadUrl(url);
-
-        Console.WriteLine($"{i:###} Found thread ({threadId}) '{xthread["title"].NodeValue()}'");
-
-        if (isDeleted)
+        private static async Task<IEnumerable<Thread>> FindThreads(XmlDocument doc, XmlNamespaceManager nsmgr)
         {
-            Console.WriteLine($"{i:###} Thread ({threadId}) was deleted.");
-            continue;
+            var xthreads = doc.DocumentElement.SelectNodes("def:thread", nsmgr);
+
+            var threads = new List<Thread>();
+            var i = 0;
+            foreach (XmlNode xthread in xthreads)
+            {
+                i++;
+
+                long threadId = xthread.AttributeValue<long>(0);
+                var isDeleted = xthread["isDeleted"].NodeValue<bool>();
+                var isClosed = xthread["isClosed"].NodeValue<bool>();
+                var url = xthread["link"].NodeValue();
+                var isValid = await CheckThreadUrl(url);
+
+                Console.WriteLine($"{i:###} Found thread ({threadId}) '{xthread["title"].NodeValue()}'");
+
+                if (isDeleted)
+                {
+                    Console.WriteLine($"{i:###} Thread ({threadId}) was deleted.");
+                    continue;
+                }
+                if (isClosed)
+                {
+                    Console.WriteLine($"{i:###} Thread ({threadId}) was closed.");
+                    continue;
+                }
+                if (!isValid)
+                {
+                    Console.WriteLine($"{i:###} the url Thread ({threadId}) is not valid: {url}");
+                    continue;
+                }
+
+                Console.WriteLine($"{i:###} Thread ({threadId}) is valid");
+                threads.Add(new Thread(threadId)
+                {
+                    Title = xthread["title"].NodeValue(),
+                    Url = url,
+                    CreatedAt = xthread["createdAt"].NodeValue<DateTime>()
+
+                });
+            }
+
+            return threads;
         }
-        if (isClosed)
-        {
-            Console.WriteLine($"{i:###} Thread ({threadId}) was closed.");
-            continue;
-        }
-        if (!isValid)
-        {
-            Console.WriteLine($"{i:###} the url Thread ({threadId}) is not valid: {url}");
-            continue;
-        }
-
-        Console.WriteLine($"{i:###} Thread ({threadId}) is valid");
-        threads.Add(new Thread(threadId)
-        {
-            Title = xthread["title"].NodeValue(),
-            Url = url,
-            CreatedAt = xthread["createdAt"].NodeValue<DateTime>()
-
-        });
-    }
-
-    return threads;
-}
 
         private static async Task<bool> CheckThreadUrl(string url)
         {
@@ -181,42 +181,42 @@ private static async Task<IEnumerable<Thread>> FindThreads(XmlDocument doc, XmlN
             }
         }
 
-private static async Task PostIssuesToGitHub(IEnumerable<Thread> threads, string repoOwner, string repoName, string PAT)
-{
-    var client = new GitHubClient(new ProductHeaderValue("DisqusToGithubIssues"));
-    var basicAuth = new Credentials(PAT);
-    client.Credentials = basicAuth;
-
-    var issues = await client.Issue.GetAllForRepository(repoOwner, repoName);
-    foreach (var thread in threads)
-    {
-        if (issues.Any(x => !x.ClosedAt.HasValue && x.Title.Equals(thread.Title)))
+        private static async Task PostIssuesToGitHub(IEnumerable<Thread> threads, string repoOwner, string repoName, string PAT)
         {
-            continue;
-        }
+            var client = new GitHubClient(new ProductHeaderValue("DisqusToGithubIssues"));
+            var basicAuth = new Credentials(PAT);
+            client.Credentials = basicAuth;
 
-        var newIssue = new NewIssue(thread.Title);
-        newIssue.Body = $@"Written on {thread.CreatedAt} 
+            var issues = await client.Issue.GetAllForRepository(repoOwner, repoName);
+            foreach (var thread in threads)
+            {
+                if (issues.Any(x => !x.ClosedAt.HasValue && x.Title.Equals(thread.Title)))
+                {
+                    continue;
+                }
+
+                var newIssue = new NewIssue(thread.Title);
+                newIssue.Body = $@"Written on {thread.CreatedAt} 
 
 URL: {thread.Url}
 ";
 
-        var issue = await client.Issue.Create(repoOwner, repoName, newIssue);
-        Console.WriteLine($"New issue (#{issue.Number}) created: {issue.Url}");
-        await Task.Delay(1000 * 5);
+                var issue = await client.Issue.Create(repoOwner, repoName, newIssue);
+                Console.WriteLine($"New issue (#{issue.Number}) created: {issue.Url}");
+                await Task.Delay(1000 * 5);
 
-        foreach (var post in thread.Posts)
-        {
-            var message = $@"Comment written by **{post.Author}** on **{post.CreatedAt}**
+                foreach (var post in thread.Posts)
+                {
+                    var message = $@"Comment written by **{post.Author}** on **{post.CreatedAt}**
 
 {post.Message}
 ";
 
-            var comment = await client.Issue.Comment.Create(repoOwner, repoName, issue.Number, message);
-            Console.WriteLine($"New comment by {post.Author} at {post.CreatedAt}");
-            await Task.Delay(1000 * 5);
+                    var comment = await client.Issue.Comment.Create(repoOwner, repoName, issue.Number, message);
+                    Console.WriteLine($"New comment by {post.Author} at {post.CreatedAt}");
+                    await Task.Delay(1000 * 5);
+                }
+            }
         }
-    }
-}
     }
 }
