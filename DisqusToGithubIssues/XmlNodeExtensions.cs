@@ -49,7 +49,7 @@ namespace DisqusToGithubIssues
                 var value = node.AttributeValue(index);
                 return (T)Convert.ChangeType(value, typeof(T));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return def;
             }
