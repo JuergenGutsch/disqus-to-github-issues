@@ -22,6 +22,8 @@ namespace DisqusToGithubIssues
                 return;
             }
 
+            client.DefaultRequestHeaders.Add("User-Agent", ".NET Disqus to GitHub Issue Importer");
+
             var path = args[0];
             string repoOwner = args[1];
             string repoName = args[2];
@@ -106,8 +108,6 @@ namespace DisqusToGithubIssues
 
         private static async Task<bool> CheckThreadUrl(string url)
         {
-            client.DefaultRequestHeaders.Add("User-Agent", ".NET Disqus to GitHub Issue Importer");
-
             if (!url.StartsWith("http://asp.net-hacker.rocks") &&
                !url.StartsWith("https://asp.net-hacker.rocks"))
             {
