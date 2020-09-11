@@ -199,6 +199,11 @@ namespace DisqusToGithubIssues
             var issues = await client.Issue.GetAllForRepository(repoOwner, repoName);
             foreach (var thread in threads)
             {
+                if(thread.Posts.Count == 0)
+                {
+                    continue;
+                }
+
                 if (issues.Any(x => !x.ClosedAt.HasValue && x.Title.Equals(thread.Title)))
                 {
                     continue;
