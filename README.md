@@ -15,3 +15,47 @@ Disqus provides a way to export all comments to a XML file that needs to be down
 First, go to https://disqus.com/ and go through their Export tool to export all the comments on your site to an XML file.
 
 The source file `program.cs` is the entry point. Compile the code and run the compiled exe with four command-line arguments: <path to Disqus XML file>, <GitHub username>, <GitHub repo name>, <GitHub personal access token>
+
+## Please note
+
+You need make few changes before use this script:
+
+- Edit `CheckThreadUrl` function in `DisqusToGithubIssues/Program.cs`.  It has code for verification domain for which comments will be added. You need remove that block or change to domain of your blog. Without that changes import will not be working.
+
+```C#
+if (!url.StartsWith("http://asp.net-hacker.rocks") &&
+    !url.StartsWith("https://asp.net-hacker.rocks"))
+{
+    return false;
+}
+```
+
+- In function `PostIssuesToGitHub` you can find templates of imported messages. Possibly you will customise that.
+
+```C#
+var message = $@"Comment written by **{post.Author}** on **{post.CreatedAt}**
+
+{post.Message}
+";
+```
+
+## Run with Docker
+
+Firstly build local image
+
+```bash
+$ docker build -t disqus-to-github-issues .
+```
+
+Then you can run import 
+
+```bash
+$ docker run --rm \
+    -v <path to Disqus XML file on host machine>:/app/disqus.xml \
+    disqus-to-github-issues:latest \
+    run \
+        /app/disqus.xml \
+        <GitHub username> \
+        <GitHub repo name> \
+        <GitHub personal access token>
+```
