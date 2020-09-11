@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Web;
 
 namespace DisqusToGithubIssues
 {
@@ -96,7 +97,7 @@ namespace DisqusToGithubIssues
                 Console.WriteLine($"{i:###} Thread ({threadId}) is valid");
                 threads.Add(new Thread(threadId)
                 {
-                    Title = xthread["title"].NodeValue(),
+                    Title = HttpUtility.HtmlDecode(xthread["title"].NodeValue()),
                     Url = url,
                     CreatedAt = xthread["createdAt"].NodeValue<DateTime>()
 
